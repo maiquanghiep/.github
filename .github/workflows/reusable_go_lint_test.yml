@@ -1,0 +1,144 @@
+name: Reusable Go Build, Lint, and Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: 'Go version'
+        type: string
+        default: '1.22.3'
+      go-lint-version:
+        description: 'Go Lint version'
+        type: string
+        default: 'v1.59'
+      install-dependencies-command:
+        description: 'Command to install dependencies'
+        required: false
+        type: string
+      run-lint:
+        description: 'Run lint'
+        type: boolean
+        default: false
+      run-unit-tests:
+        description: 'Run unit tests'
+        type: boolean
+        default: false
+      run-integration-tests:
+        description: 'Run integration tests'
+        type: boolean
+        default: false
+      # allow customizing the test command (e.g sudo make test-e2e)
+      integration-tests-command:
+          description: 'Command to run integration tests'
+          required: false
+          type: string
+          default: 'make test-e2e'
+      run-check-mock-gen:
+          description: 'Run check-mock-gen'
+          type: boolean
+          default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Print Go environment
+        run: go env
+
+      - name: Cache Go modules
+        id: go-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.go/pkg/mod
+            ~/.cache/go-build
+          key: go-mod-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            go-mod-
+
+      - name: Install Dependencies
+        if: ${{ inputs.install-dependencies-command != '' }}
+        run: ${{ inputs.install-dependencies-command }}
+
+      - name: Build Application
+        run: make build
+
+  lint:
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.run-lint }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Run Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: ${{ inputs.go-lint-version }}
+          args: --timeout=10m
+
+  unit-tests:
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.run-unit-tests }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Run Unit Tests
+        run: |
+          make test
+
+  integration-tests:
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.run-integration-tests }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Run Integration Tests
+        run: ${{ inputs.integration-tests-command }}
+
+  check-mock-gen:
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.run-check-mock-gen }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ inputs.go-version }}
+
+      - name: Run make mock-gen
+        run: make mock-gen
+
+      - name: Check for uncommitted changes
+        run: |
+          if ! git diff --exit-code; then
+            echo "Uncommitted changes detected. Please run 'make mock-gen' before committing."
+            exit 1
+          fi
