@@ -1,0 +1,73 @@
+name: Sync Branch
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: 'The base branch to sync from'
+        required: true
+        default: 'main'
+        type: string
+      target_branch:
+        description: 'The target branch to sync to'
+        required: true
+        default: 'dev'
+        type: string
+      reviewers:
+        description: 'Comma-separated list of reviewers'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for commits in base branch but not in target branch
+        id: check_commits
+        run: |
+          base_branch=${{ inputs.base_branch }}
+          target_branch=${{ inputs.target_branch }}
+
+          echo "Checking for commits in $base_branch that are not in $target_branch..."
+          
+          new_commits=$(git log origin/$base_branch --not origin/$target_branch --oneline)
+
+          if [ -z "$new_commits" ]; then
+            echo "No unique commits found in $base_branch that are not in $target_branch."
+            echo "no_diff=true" >> $GITHUB_ENV
+          else
+            echo "Unique commits in $base_branch that are not in $target_branch:"
+            echo "$new_commits"
+            echo "no_diff=false" >> $GITHUB_ENV
+          fi
+      
+      - name: Check for existing PR and create if not exists
+        if: env.no_diff == 'false'
+        run: |
+          base_branch="${{ inputs.base_branch }}"
+          target_branch="${{ inputs.target_branch }}"
+          reviewers="${{ inputs.reviewers }}"
+          repo="${{ github.repository }}"
+
+          pr_exists=$(gh pr list --base "$target_branch" --head "$base_branch" --repo "$repo" --json number --jq '.[0].number')
+
+          if [ -n "$pr_exists" ]; then
+            echo "A pull request already exists: #$pr_exists"
+          else
+            gh pr create --base "$target_branch" \
+            --head "$base_branch" \
+            --title "Sync from $base_branch to $target_branch" \
+            --body "This PR synchronizes changes from $base_branch to $target_branch." \
+            --repo "$repo" \
+            --reviewer "$reviewers"
+            
+            echo "Pull request created successfully."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
