@@ -1,0 +1,31 @@
+name: Reusable Go Build, Lint, and Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version'
+        type: string
+        default: '22.3'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm run test
+
+    - name: Build project
+      run: npm run build
