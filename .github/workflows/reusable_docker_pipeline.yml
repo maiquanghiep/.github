@@ -21,6 +21,11 @@ on:
         type: string
         description: "Custom repository name"
         default: ""
+      buildArgs:
+        required: false
+        type: string
+        description: "Build-time variables"
+        default: "" 
 
 jobs:
   docker_build:
@@ -55,6 +60,7 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME }}.tar
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
+          build-args: ${{ inputs.buildArgs }}
  
       - name: Upload Docker image to workspace
         if: inputs.publish == true
