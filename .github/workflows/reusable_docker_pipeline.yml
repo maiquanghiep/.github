@@ -25,11 +25,16 @@ on:
         required: false
         type: string
         description: "Build-time variables"
-        default: "" 
+        default: ""
+      environment:
+        required: false
+        type: string
+        default: ""
 
 jobs:
   docker_build:
     runs-on: ubuntu-22.04
+    environment: ${{inputs.environment}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
