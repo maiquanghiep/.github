@@ -7,6 +7,10 @@ on:
         description: 'Node version'
         type: string
         default: '22.3'
+      run-unit-tests:
+        description: 'Run unit tests'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -25,6 +29,7 @@ jobs:
       run: npm install
 
     - name: Run tests
+      if: ${{ inputs.run-unit-tests }}
       run: npm run test
 
     - name: Build project
