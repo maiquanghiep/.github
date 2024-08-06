@@ -11,6 +11,14 @@ on:
         description: 'Run unit tests'
         type: boolean
         default: false
+      run-lint:
+        description: 'Run lint'
+        type: boolean
+        default: false
+      run-build:
+        description: 'Run npm build'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -27,10 +35,15 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+    
+    - name: Run Lint
+      if: ${{ inputs.run-lint }}
+      run: npm run lint
 
     - name: Run tests
       if: ${{ inputs.run-unit-tests }}
       run: npm run test
 
     - name: Build project
+      if: ${{ inputs.run-build }}
       run: npm run build
