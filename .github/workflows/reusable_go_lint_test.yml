@@ -53,17 +53,6 @@ jobs:
       - name: Print Go environment
         run: go env
 
-      - name: Cache Go modules
-        id: go-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.go/pkg/mod
-            ~/.cache/go-build
-          key: go-mod-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            go-mod-
-
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
         run: ${{ inputs.install-dependencies-command }}
