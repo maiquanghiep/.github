@@ -83,6 +83,10 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
 
+      - name: Install Dependencies
+        if: ${{ inputs.install-dependencies-command != '' }}
+        run: ${{ inputs.install-dependencies-command }}
+
       - name: Run Lint
         uses: golangci/golangci-lint-action@v6
         with:
@@ -101,6 +105,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go-version }}
+
+      - name: Install Dependencies
+        if: ${{ inputs.install-dependencies-command != '' }}
+        run: ${{ inputs.install-dependencies-command }}
 
       - name: Run Unit Tests
         run: |
@@ -124,6 +132,10 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
 
+      - name: Install Dependencies
+        if: ${{ inputs.install-dependencies-command != '' }}
+        run: ${{ inputs.install-dependencies-command }}
+
       - name: Run Integration Tests
         run: ${{ inputs.integration-tests-command }}
 
@@ -138,6 +150,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go-version }}
+
+      - name: Install Dependencies
+        if: ${{ inputs.install-dependencies-command != '' }}
+        run: ${{ inputs.install-dependencies-command }}
 
       - name: Run make mock-gen
         run: make mock-gen
