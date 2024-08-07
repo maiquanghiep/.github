@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.3.1
+
+- reusable_go_lint_test: Install dependencies on all steps
+- reusable_go_lint_test: Templatize auth and make it optional
+
 ## 0.3.0
 
 - Add reusable_node_lint_test workflow
