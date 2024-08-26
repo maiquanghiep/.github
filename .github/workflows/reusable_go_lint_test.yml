@@ -49,10 +49,6 @@ on:
         description: 'Comma-separated list of private Go repositories'
         type: string
         default: ''
-    # secrets:
-    #   go-private-token:
-    #     description: 'Personal Access Token (PAT) for accessing private Go modules'
-    #     required: false
 
 jobs:
   build:
@@ -68,9 +64,10 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
+        if: ${{ inputs.go-private-repos != '' }}
         run: |
           go env -w GOPRIVATE=${{ inputs.go-private-repos }}
-          git config --global url."https://${{ secrets.go-private-token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Print Go environment
         run: go env
@@ -106,9 +103,10 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
+        if: ${{ inputs.go-private-repos != '' }}
         run: |
           go env -w GOPRIVATE=${{ inputs.go-private-repos }}
-          git config --global url."https://${{ secrets.go-private-token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
@@ -134,9 +132,10 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
+        if: ${{ inputs.go-private-repos != '' }}
         run: |
           go env -w GOPRIVATE=${{ inputs.go-private-repos }}
-          git config --global url."https://${{ secrets.go-private-token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
@@ -166,9 +165,10 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
+        if: ${{ inputs.go-private-repos != '' }}
         run: |
           go env -w GOPRIVATE=${{ inputs.go-private-repos }}
-          git config --global url."https://${{ secrets.go-private-token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
