@@ -45,6 +45,11 @@ on:
         description: 'Run build'
         type: boolean
         default: false
+      go-private-token:
+        description: 'Personal Access Token (PAT) for accessing private Go modules'
+        type: string
+        required: false
+        default: ''
 
 jobs:
   build:
