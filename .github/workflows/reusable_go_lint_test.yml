@@ -72,7 +72,7 @@ jobs:
 
       - name: Configure Git to use PAT for Private Modules
         run: |
-          git config --global url."https://oauth2:${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://oauth2:${{ secrets.go-private-token }}@github.com/".insteadOf "https://github.com/"
 
       - name: Print Go environment
         run: go env
@@ -131,7 +131,7 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Authenticate Go Private Modules
-        run: echo "${{ secrets.GO_PRIVATE_TOKEN }}" | go env -w GOPRIVATE=github.com/${{ inputs.private-repos }}
+        run: echo "${{ secrets.go-private-token }}" | go env -w GOPRIVATE=github.com/${{ inputs.private-repos }}
 
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
