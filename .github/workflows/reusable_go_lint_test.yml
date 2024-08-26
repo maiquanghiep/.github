@@ -45,6 +45,10 @@ on:
         description: 'Run build'
         type: boolean
         default: false
+      private-repos:
+        description: 'List all the private repos'
+        type: string
+        default: ''
     secrets:
       go-private-token:
         description: 'Personal Access Token (PAT) for accessing private Go modules'
@@ -62,6 +66,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go-version }}
+
+      - name: Authenticate Go Private Modules
+        run: go env -w GOPRIVATE=github.com/${{ inputs.private-repos }}
 
       - name: Configure Git to use PAT for Private Modules
         run: |
@@ -122,6 +129,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ inputs.go-version }}
+
+      - name: Authenticate Go Private Modules
+        run: echo "${{ secrets.GO_PRIVATE_TOKEN }}" | go env -w GOPRIVATE=github.com/${{ inputs.private-repos }}
 
       - name: Install Dependencies
         if: ${{ inputs.install-dependencies-command != '' }}
