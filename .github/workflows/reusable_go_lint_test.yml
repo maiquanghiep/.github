@@ -59,6 +59,10 @@ jobs:
         with:
           go-version: ${{ inputs.go-version }}
 
+      - name: Configure Git to use PAT for Private Modules
+        run: |
+          git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Print Go environment
         run: go env
 
