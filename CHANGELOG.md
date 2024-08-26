@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.0
+
+- reusable_go_lint_test: Add go-private-repos input, allowing access to private repositories
+
 ## 0.3.2
 
 - reusable_go_lint_test: Allow build job to be optional
