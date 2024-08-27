@@ -57,9 +57,13 @@ jobs:
         id: set-build-secrets
         run: |
           SECRETS=""
-          [[ ! -z "${{ inputs.go-private-repos }}" ]] && SECRETS+="GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}\n"
+          if [ -n "${{ inputs.go-private-repos }}" ]; then
+            SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
+          fi
           echo "::add-mask::$SECRETS"
-          echo $SECRETS >> "$GITHUB_OUTPUT"
+          echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$SECRETS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Build Docker image
