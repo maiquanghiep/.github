@@ -21,6 +21,11 @@ on:
         type: string
         description: "Custom repository name"
         default: ""
+      go-private-repos:
+        required: false
+        type: string
+        description: "Comma-separated list of private Go repositories"
+        default: ""
 
 jobs:
   docker_build:
@@ -47,6 +52,15 @@ jobs:
           else
             echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
           fi
+    
+      - name: Generate and mask build secrets
+        id: set-build-secrets
+        run: |
+          SECRETS=""
+          [[ ! -z "${{ inputs.go-private-repos }}" ]] && SECRETS+="GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}\n"
+          echo "::add-mask::$SECRETS"
+          echo $SECRETS >> "$GITHUB_OUTPUT"
+        shell: bash
 
       - name: Build Docker image
         uses: docker/build-push-action@v6
@@ -55,6 +69,7 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME }}.tar
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
+          secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
  
       - name: Upload Docker image to workspace
         if: inputs.publish == true
