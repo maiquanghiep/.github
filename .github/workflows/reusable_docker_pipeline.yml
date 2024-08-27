@@ -21,11 +21,10 @@ on:
         type: string
         description: "Custom repository name"
         default: ""
-      go-private-repos:
-        required: false
-        type: string
-        description: "Comma-separated list of private Go repositories"
-        default: ""
+      go-private-repos-authentication:
+        description: 'Enable authentication for private repositories'
+        type: boolean
+        default: false
 
 jobs:
   docker_build:
@@ -57,7 +56,7 @@ jobs:
         id: set-build-secrets
         run: |
           SECRETS=""
-          if [ -n "${{ inputs.go-private-repos }}" ]; then
+          if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
             SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
           fi
           echo "::add-mask::$SECRETS"

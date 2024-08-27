@@ -45,10 +45,10 @@ on:
         description: 'Run build'
         type: boolean
         default: false
-      go-private-repos:
-        description: 'Comma-separated list of private Go repositories'
-        type: string
-        default: ''
+      go-private-repos-authentication:
+        description: 'Enable authentication for private repositories'
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -64,7 +64,7 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
-        if: ${{ inputs.go-private-repos != '' }}
+        if: ${{ inputs.go-private-repos-authentication }}
         run: |
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
@@ -102,7 +102,7 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
-        if: ${{ inputs.go-private-repos != '' }}
+        if: ${{ inputs.go-private-repos-authentication }}
         run: |
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
@@ -130,7 +130,7 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
-        if: ${{ inputs.go-private-repos != '' }}
+        if: ${{ inputs.go-private-repos-authentication }}
         run: |
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
@@ -162,7 +162,7 @@ jobs:
           go-version: ${{ inputs.go-version }}
 
       - name: Configure Private Module Access
-        if: ${{ inputs.go-private-repos != '' }}
+        if: ${{ inputs.go-private-repos-authentication }}
         run: |
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
