@@ -51,7 +51,9 @@ jobs:
           else
             echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
           fi
-    
+   
+      # This block is used to not hard-coded the secrets in Build Docker image
+      # Secrets are only added when necessary 
       - name: Generate and mask build secrets
         id: set-build-secrets
         run: |
