@@ -66,13 +66,15 @@ jobs:
         id: set-build-tags
         run: |
           TAGS=""
-          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
+          TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
           if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
-            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+            TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
+            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
           fi
-          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
+          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$TAGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   docker_build:
     runs-on: ubuntu-22.04
