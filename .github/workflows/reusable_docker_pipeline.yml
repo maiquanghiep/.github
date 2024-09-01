@@ -72,7 +72,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME }}.oci
+          outputs: type=oci,dest=/tmp/${{ env.IMAGE_NAME }}.oci
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
           secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
