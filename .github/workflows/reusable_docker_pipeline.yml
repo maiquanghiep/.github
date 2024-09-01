@@ -25,6 +25,11 @@ on:
         description: 'Enable authentication for private repositories'
         type: boolean
         default: false
+      platforms:
+        required: false
+        type: string
+        description: "Target platforms for Docker build"
+        default: "linux/amd64,linux/arm64"
 
 jobs:
   prepare-env:
@@ -60,10 +65,12 @@ jobs:
       - name: Prepare tags
         id: set-build-tags
         run: |
-          BASE_TAG="${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          TAGS="$BASE_TAG"
+          TAGS=""
+          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
           if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAGS="$TAGS ${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+            TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
           fi
           echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
 
@@ -97,7 +104,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ inputs.platforms }}
           tags: ${{ needs.prepare-env.outputs.build-tags }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
