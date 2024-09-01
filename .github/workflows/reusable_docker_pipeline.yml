@@ -112,3 +112,6 @@ jobs:
           file: ${{ inputs.dockerfile }}
           secrets: ${{ steps.prepare-env.outputs.SECRETS }}
           push: ${{ inputs.publish }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      
