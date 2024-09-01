@@ -33,39 +33,39 @@ jobs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
       build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
     steps:
-    - name: Determine image name
-    id: set_image_name
-    run: |
-      if [ -n "${{ inputs.repoName }}" ]; then
-        echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
-      else
-        echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
-      fi
+      - name: Determine image name
+      id: set_image_name
+      run: |
+        if [ -n "${{ inputs.repoName }}" ]; then
+          echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
+        else
+          echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
+        fi
+        
+      # This block is used to not hard-coded the secrets in Build Docker image
+      # Secrets are only added when necessary 
+      - name: Generate and mask build secrets
+        id: set-build-secrets
+        run: |
+          SECRETS=""
+          if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
+            SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
+          fi
+          echo "::add-mask::$SECRETS"
+          echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$SECRETS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        shell: bash
       
-    # This block is used to not hard-coded the secrets in Build Docker image
-    # Secrets are only added when necessary 
-    - name: Generate and mask build secrets
-      id: set-build-secrets
-      run: |
-        SECRETS=""
-        if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
-          SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
-        fi
-        echo "::add-mask::$SECRETS"
-        echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
-        echo -e "$SECRETS" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-      shell: bash
-    
-    - name: Prepare tags
-      id: set-build-tags
-      run: |
-        BASE_TAG="${{ env.IMAGE_NAME }}:${{ github.sha }}"
-        TAGS="$BASE_TAG"
-        if [[ $GITHUB_REF == refs/tags/* ]]; then
-          TAGS="$TAGS ${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
-        fi
-        echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
+      - name: Prepare tags
+        id: set-build-tags
+        run: |
+          BASE_TAG="${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          TAGS="$BASE_TAG"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAGS="$TAGS ${{ env.IMAGE_NAME }}:${{ github.ref_name }}"
+          fi
+          echo "TAGS=$TAGS" >> $GITHUB_OUTPUT
 
   docker_build:
     runs-on: ubuntu-22.04
