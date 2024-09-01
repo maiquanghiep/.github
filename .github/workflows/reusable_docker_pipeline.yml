@@ -70,10 +70,10 @@ jobs:
   docker_build:
     runs-on: ubuntu-22.04
     needs: prepare-env
+    env:
+      build-secrets: ${{ needs.prepare-env.outputs.build-secrets }}
+      build-tags: ${{ needs.prepare-env.outputs.build-tags }}
     steps:
-      - env:
-        build-secrets: ${{ needs.prepare-env.outputs.build-secrets }}
-        build-tags: ${{ needs.prepare-env.outputs.build-tags }}
       - name: Checkout repository
         uses: actions/checkout@v4
 
