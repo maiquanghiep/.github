@@ -30,7 +30,7 @@ jobs:
   prepare-env:
     runs-on: ubuntu-22.04
     outputs:
-      build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
+      build-secrets: 
       build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
     steps:
       - name: Determine image name
@@ -70,9 +70,6 @@ jobs:
   docker_build:
     runs-on: ubuntu-22.04
     needs: prepare-env
-    env:
-      build-secrets: ${{ needs.prepare-env.outputs.build-secrets }}
-      build-tags: ${{ needs.prepare-env.outputs.build-tags }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,8 +98,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
-          tags: ${{ build-tags }}
+          tags: ${{ needs.prepare-env.outputs.build-tags }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
-          secrets: ${{ build-secrets }}
+          secrets: ${{ steps.prepare-env.outputs.SECRETS }}
           push: ${{ inputs.publish }}
