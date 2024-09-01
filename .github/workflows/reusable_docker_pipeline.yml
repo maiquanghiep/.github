@@ -70,6 +70,7 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/amd64,linux/arm64
           tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
           outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME }}.tar
           context: ${{ inputs.dockerContext }}
