@@ -21,6 +21,10 @@ on:
         type: string
         description: "Custom repository name"
         default: ""
+      go-private-repos-authentication:
+        description: 'Enable authentication for private repositories'
+        type: boolean
+        default: false
 
 jobs:
   docker_build:
@@ -47,6 +51,21 @@ jobs:
           else
             echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
           fi
+   
+      # This block is used to not hard-coded the secrets in Build Docker image
+      # Secrets are only added when necessary 
+      - name: Generate and mask build secrets
+        id: set-build-secrets
+        run: |
+          SECRETS=""
+          if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
+            SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
+          fi
+          echo "::add-mask::$SECRETS"
+          echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$SECRETS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Build Docker image
         uses: docker/build-push-action@v6
@@ -55,6 +74,7 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ env.IMAGE_NAME }}.tar
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
+          secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
  
       - name: Upload Docker image to workspace
         if: inputs.publish == true
