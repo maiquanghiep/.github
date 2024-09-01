@@ -34,13 +34,13 @@ jobs:
       build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
     steps:
       - name: Determine image name
-      id: set_image_name
-      run: |
-        if [ -n "${{ inputs.repoName }}" ]; then
-          echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
-        else
-          echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
-        fi
+        id: set_image_name
+        run: |
+          if [ -n "${{ inputs.repoName }}" ]; then
+            echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
+          else
+            echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
+          fi
         
       # This block is used to not hard-coded the secrets in Build Docker image
       # Secrets are only added when necessary 
