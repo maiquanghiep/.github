@@ -78,7 +78,7 @@ jobs:
 
   docker_build_and_publish:
     runs-on: ubuntu-22.04
-    needs: prepare-env
+    needs: prepare-metadata
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
