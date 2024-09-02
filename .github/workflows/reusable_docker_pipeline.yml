@@ -32,7 +32,7 @@ on:
         default: "linux/amd64,linux/arm64"
 
 jobs:
-  prepare-env:
+  prepare-metadata:
     runs-on: ubuntu-22.04
     outputs:
       build-secrets: 
@@ -46,7 +46,7 @@ jobs:
           else
             echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
           fi
-        
+
       # This block is used to not hard-coded the secrets in Build Docker image
       # Secrets are only added when necessary 
       - name: Generate and mask build secrets
@@ -76,7 +76,7 @@ jobs:
           echo -e "$TAGS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-  docker_build:
+  docker_build_and_publish:
     runs-on: ubuntu-22.04
     needs: prepare-env
     steps:
@@ -103,13 +103,12 @@ jobs:
           username: ${{ secrets.AWS_ACCESS_KEY_ID }}
           password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Build Docker image
+      - name: Build Docker image and Publish
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ inputs.platforms }}
-          tags: ${{ needs.prepare-env.outputs.build-tags }}
+          tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
-          secrets: ${{ steps.prepare-env.outputs.SECRETS }}
+          secrets: ${{ steps.prepare-metadata.outputs.SECRETS }}
           push: ${{ inputs.publish }}
-      
