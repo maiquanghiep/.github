@@ -80,10 +80,6 @@ jobs:
     runs-on: ubuntu-22.04
     needs: prepare-metadata
     strategy:
-      matrix:
-        platform:
-          - linux/arm64
-          - linux/amd64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -111,7 +107,7 @@ jobs:
       - name: Build Docker image and Publish
         uses: docker/build-push-action@v6
         with:
-          platforms: ${{ matrix.platform }}
+          platforms: ${{ inputs.platforms }}
           tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
