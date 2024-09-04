@@ -66,6 +66,7 @@ jobs:
       - name: Configure Private Module Access
         if: ${{ inputs.go-private-repos-authentication }}
         run: |
+          go env -w GOPRIVATE="github.com/babylonlabs-io/*"
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Print Go environment
@@ -104,6 +105,7 @@ jobs:
       - name: Configure Private Module Access
         if: ${{ inputs.go-private-repos-authentication }}
         run: |
+          go env -w GOPRIVATE="github.com/babylonlabs-io/*"
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
@@ -132,6 +134,7 @@ jobs:
       - name: Configure Private Module Access
         if: ${{ inputs.go-private-repos-authentication }}
         run: |
+          go env -w GOPRIVATE="github.com/babylonlabs-io/*"
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
@@ -164,6 +167,7 @@ jobs:
       - name: Configure Private Module Access
         if: ${{ inputs.go-private-repos-authentication }}
         run: |
+          go env -w GOPRIVATE="github.com/babylonlabs-io/*"
           git config --global url."https://${{ secrets.GO_PRIVATE_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install Dependencies
