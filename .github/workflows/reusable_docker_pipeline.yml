@@ -67,9 +67,9 @@ jobs:
         run: |
           TAGS=""
           TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
-          TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
+
           if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAGS="$TAGS ${{ vars.AWS_ECR_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
+
             TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
           fi
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
