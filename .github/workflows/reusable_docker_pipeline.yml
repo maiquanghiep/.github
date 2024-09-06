@@ -68,9 +68,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}
+            type=sha,event=push
             type=ref,event=tag,pattern={{version}}
 
   docker_build:
