@@ -38,6 +38,7 @@ jobs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
       build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
       image-name: ${{ steps.set_image_name.outputs.IMAGE_NAME }}
+      metadata-output-json: ${{ steps.meta.outputs.JSON }}
     steps:
       - name: Determine image name
         id: set_image_name
@@ -63,19 +64,17 @@ jobs:
           echo -e "$SECRETS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
- 
-      - name: Prepare tags
-        id: set-build-tags
-        run: |
-          TAGS=""
-          TAGS+="${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}:${{ github.sha }}\n"
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAGS+="${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}:${{ github.ref_name }}\n"
-          fi
-          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$TAGS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            {{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+          outputs: JSON
+ 
   docker_build:
     runs-on: ${{ matrix.runner }}
     needs: prepare-metadata
@@ -84,10 +83,10 @@ jobs:
       matrix:
         platform:
           - linux/amd64
-          - linux/arm64
+          # - linux/arm64
         runner:
           - ubuntu-22.04
-          - self-hosted
+          # - self-hosted
         exclude:
         - platform: linux/amd64
           runner: self-hosted
@@ -120,7 +119,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
+          outputs: |
+            type=image,name=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
           # tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
           context: ${{ inputs.dockerContext }}
@@ -171,8 +171,8 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }}@sha256:%s ' *)          
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "${{ needs.prepare-metadata.outputs.metadata-output-json }}") \
+            $(printf '${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }}@sha256:%s ' *)                 
       
       - name: Inspect image
         run: |
