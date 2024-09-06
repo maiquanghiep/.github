@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
-      build-tags: ${{ steps.docker_meta.outputs.tags }}
+      build-tags: ${{ steps.docker_meta.outputs.TAGS }}
       image-name: ${{ steps.set_image_name.outputs.IMAGE_NAME }}
     steps:
       - name: Determine image name
@@ -55,6 +55,7 @@ jobs:
         run: |
           SECRETS=""
           if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
+            echo "::add-mask::${{ secrets.GO_PRIVATE_TOKEN }}"
             SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
           fi
           echo "::add-mask::$SECRETS"
@@ -63,15 +64,17 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
  
-      - name: Docker meta
-        id: docker_meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}
-          tags: |
-            type=sha,event=push
-            type=ref,event=tag,pattern={{version}}
+      - name: Prepare tags
+        id: set-build-tags
+        run: |
+          TAGS=""
+          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
+          fi
+          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$TAGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   docker_build:
     runs-on: ubuntu-22.04
