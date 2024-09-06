@@ -154,6 +154,15 @@ jobs:
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Determine image name
+        id: set_image_name
+        run: |
+          if [ -n "${{ inputs.repoName }}" ]; then
+            echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
+          else
+            echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
+          fi
       
       - name: Docker meta
         id: meta
