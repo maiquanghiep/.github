@@ -77,7 +77,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
   docker_build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.runner }}
     needs: prepare-metadata
     strategy:
       fail-fast: false
