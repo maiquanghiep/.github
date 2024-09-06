@@ -107,6 +107,8 @@ jobs:
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
           tags: ${{ steps.prepare-metadata.outputs.tags }}
           secrets: ${{ steps.prepare-metadata.outputs.SECRETS }}
+          context: ${{ inputs.dockerContext }}
+          file: ${{ inputs.dockerfile }}
       
       - name: Export digest
         run: |
