@@ -37,14 +37,15 @@ jobs:
     outputs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
       build-tags: ${{ steps.docker_meta.outputs.tags }}
+      image-name: ${{ steps.set_image_name.outputs.IMAGE_NAME }}
     steps:
       - name: Determine image name
         id: set_image_name
         run: |
           if [ -n "${{ inputs.repoName }}" ]; then
-            echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_ENV
+            echo "IMAGE_NAME=${{ inputs.repoName }}" >> $GITHUB_OUTPUT
           else
-            echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_ENV
+            echo "IMAGE_NAME=$(echo $GITHUB_REPOSITORY | cut -d '/' -f 2)" >> $GITHUB_OUTPUT
           fi
 
       # This block is used to not hard-coded the secrets in Build Docker image
@@ -69,7 +70,7 @@ jobs:
           images: |
             ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ step.set_image_name.outputs.IMAGE_NAME }}
             type=ref,event=tag,pattern={{version}}
 
   docker_build:
@@ -103,7 +104,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
+          outputs: type=image,name=${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
           tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
           context: ${{ inputs.dockerContext }}
