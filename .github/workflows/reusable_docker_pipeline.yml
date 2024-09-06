@@ -171,13 +171,8 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          # Ensure metadata-output-json contains correct JSON
-          echo "${{ needs.prepare-metadata.outputs.metadata-output-json }}" > /tmp/metadata.json
-          
-          # Extract tags and create the image manifest
-          docker buildx imagetools create \
-            $(jq -cr '.tags | map("-t " + .) | join(" ")' /tmp/metadata.json) \
-            $(printf "${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }}@sha256:%s " *)
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *) 
       
       - name: Inspect image
         run: |
