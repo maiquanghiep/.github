@@ -105,8 +105,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
-          tags: ${{ steps.prepare-metadata.outputs.build-tags }}
-          secrets: ${{ steps.prepare-metadata.outputs.build-secrets }}
+          tags: ${{ needs.prepare-metadata.outputs.build-tags }}
+          secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
       
