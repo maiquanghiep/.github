@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
-      build-tags: ${{ steps.docker_meta.outputs.TAGS }}
+      build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
       image-name: ${{ steps.set_image_name.outputs.IMAGE_NAME }}
     steps:
       - name: Determine image name
@@ -53,12 +53,12 @@ jobs:
       - name: Generate and mask build secrets
         id: set-build-secrets
         run: |
+          echo "::add-mask::$SECRETS"
           SECRETS=""
           if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
             echo "::add-mask::${{ secrets.GO_PRIVATE_TOKEN }}"
             SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
           fi
-          echo "::add-mask::$SECRETS"
           echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
           echo -e "$SECRETS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
