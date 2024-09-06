@@ -108,7 +108,7 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
           outputs: type=image,name=${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
-          tags: ${{ needs.prepare-metadata.outputs.build-tags }}
+          # tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
           context: ${{ inputs.dockerContext }}
           file: ${{ inputs.dockerfile }}
