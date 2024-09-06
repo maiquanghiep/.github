@@ -107,7 +107,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
+          outputs: type=image,name=maiquanghiep/${{ needs.prepare-metadata.outputs.image-name }},push-by-digest=true,push=true
           # tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
           context: ${{ inputs.dockerContext }}
