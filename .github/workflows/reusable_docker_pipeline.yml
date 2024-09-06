@@ -103,7 +103,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
-          labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
           tags: ${{ needs.prepare-metadata.outputs.build-tags }}
           secrets: ${{ needs.prepare-metadata.outputs.build-secrets }}
