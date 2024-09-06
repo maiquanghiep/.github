@@ -105,6 +105,8 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
+          tags: ${{ steps.prepare-metadata.outputs.tags }}
+          secrets: ${{ steps.prepare-metadata.outputs.SECRETS }}
           images: |
             ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
       
