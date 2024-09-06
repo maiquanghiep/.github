@@ -68,9 +68,9 @@ jobs:
         id: set-build-tags
         run: |
           TAGS=""
-          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
+          TAGS+="${{ steps.set_image_name.outputs.IMAGE_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
           if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
+            TAGS+="$TAGS ${{ steps.set_image_name.outputs.IMAGE_NAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
           fi
           echo "TAGS<<EOF" >> $GITHUB_OUTPUT
           echo -e "$TAGS" >> $GITHUB_OUTPUT
