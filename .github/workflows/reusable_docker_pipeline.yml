@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       build-secrets: ${{ steps.set-build-secrets.outputs.SECRETS }}
-      build-tags: ${{ steps.set-build-tags.outputs.TAGS }}
+      build-tags: ${{ steps.docker_meta.outputs.tags }}
     steps:
       - name: Determine image name
         id: set_image_name
@@ -62,23 +62,25 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
  
-      - name: Prepare tags
-        id: set-build-tags
-        run: |
-          TAGS=""
-          TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\n"
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+            type=ref,event=tag,pattern={{version}}
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-
-            TAGS="$TAGS ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}\n"
-          fi
-          echo "TAGS<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$TAGS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-  docker_build_and_publish:
+  docker_build:
     runs-on: ubuntu-22.04
     needs: prepare-metadata
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - linux/amd64
+          - linux/arm64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -96,12 +98,63 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image and Publish
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          platforms: ${{ inputs.platforms }}
-          tags: ${{ needs.prepare-metadata.outputs.build-tags }}
-          context: ${{ inputs.dockerContext }}
-          file: ${{ inputs.dockerfile }}
-          secrets: ${{ steps.prepare-metadata.outputs.SECRETS }}
-          push: ${{ inputs.publish }}
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
+          images: |
+            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+      
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"          
+      
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - docker_build
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)          
+      
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ steps.meta.outputs.version }}   
