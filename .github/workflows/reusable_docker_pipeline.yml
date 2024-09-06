@@ -85,6 +85,14 @@ jobs:
         platform:
           - linux/amd64
           - linux/arm64
+        runner:
+          - ubuntu-22.04
+          - self-hosted
+        exclude:
+        - platform: linux/amd64
+          runner: self-hosted
+        - platform: linux/arm64
+          runner: ubuntu-22.04
     steps:
       - name: Prepare
         run: |
