@@ -53,13 +53,13 @@ jobs:
       - name: Generate and mask build secrets
         id: set-build-secrets
         run: |
-          echo "::add-mask::$SECRETS"
           SECRETS=""
           if [ -n "${{ inputs.go-private-repos-authentication }}" ]; then
             echo "::add-mask::${{ secrets.GO_PRIVATE_TOKEN }}"
             SECRETS+='"GO_PRIVATE_TOKEN=${{ secrets.GO_PRIVATE_TOKEN }}"\n'
           fi
           echo "SECRETS<<EOF" >> $GITHUB_OUTPUT
+          echo "::add-mask::$SECRETS"
           echo -e "$SECRETS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         shell: bash
