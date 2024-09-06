@@ -107,8 +107,6 @@ jobs:
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,push=true
           tags: ${{ steps.prepare-metadata.outputs.tags }}
           secrets: ${{ steps.prepare-metadata.outputs.SECRETS }}
-          images: |
-            ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
       
       - name: Export digest
         run: |
