@@ -70,7 +70,7 @@ jobs:
           images: |
             ${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ step.set_image_name.outputs.IMAGE_NAME }}
+            type=sha,prefix=${{ vars.DOCKERHUB_REGISTRY_ID }}/${{ steps.set_image_name.outputs.IMAGE_NAME }}
             type=ref,event=tag,pattern={{version}}
 
   docker_build:
