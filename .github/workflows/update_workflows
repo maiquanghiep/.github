@@ -1,0 +1,92 @@
+name: Update Workflows in Organization
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-workflows:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: read
+    steps:
+      - name: Checkout this repo (for metadata)
+        uses: actions/checkout@v3
+
+      - name: Get Latest Tag and Changelog from babylonlabs-io/.github
+        id: get-latest-release
+        run: |
+          latest_release=$(curl -s https://api.github.com/repos/babylonlabs-io/.github/releases/latest)
+          latest_tag=$(echo "$latest_release" | jq -r .tag_name)
+          changelog=$(echo "$latest_release" | jq -r .body)
+          echo "LATEST_TAG=$latest_tag" >> $GITHUB_ENV
+          echo "CHANGELOG=$changelog" >> $GITHUB_ENV
+
+      - name: List Organization Repositories
+        id: list-repos
+        run: |
+          ORG="maiquanghiep"
+          repos=$(gh repo list $ORG --json name --jq '.[].name')
+          echo "REPOS=$repos" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clone, Update, and Create Pull Requests
+        run: |
+          IFS=', ' read -r -a workflows <<< "$WORKFLOW_NAMES"
+          for repo in $REPOS; do
+            echo "Processing $repo"
+            git clone https://github.com/$ORG/$repo
+            cd $repo
+
+            modified=false
+
+            # Check if .github/workflows directory exists
+            if [[ -d ".github/workflows" ]]; then
+              for file in .github/workflows/*.yml; do
+                if [[ -f "$file" ]]; then
+                  echo "Checking $file in $repo"
+                  for workflow in "${workflows[@]}"; do
+                    # Check if the file contains a reference to the workflow
+                    if grep -q "${workflow%%@*}" "$file"; then
+                      echo "Found ${workflow} reference in $file"
+                      sed -i "s|${workflow}@.*|${workflow}@${LATEST_TAG}|g" "$file"
+                    fi
+                  done
+                fi
+              done
+
+              # Check if any file was actually modified
+              if [[ $(git status --porcelain) ]]; then
+                echo "Changes detected in $repo, creating branch and committing changes"
+                git checkout -b update-workflows-${LATEST_TAG}
+                git add .
+                git commit -m "Update workflows to latest tag: ${LATEST_TAG}"
+                modified=true
+              else
+                echo "No changes detected in $repo"
+              fi
+            else
+              echo "No workflows directory found in $repo"
+            fi
+
+            # Create a pull request only if changes were committed
+            if [[ "$modified" == true ]]; then
+              echo "Creating PR for $repo"
+              gh pr create \
+                --repo "$ORG/$repo" \
+                --title "Update workflows to latest tag: ${LATEST_TAG}" \
+                --body "**Changelog for ${LATEST_TAG}**: $CHANGELOG" \
+                --base main \
+                --head update-workflows-${LATEST_TAG} \
+                --label "automation, workflows"
+            fi
+            cd ..
+            rm -rf $repo
+          done
+        env:
+          WORKFLOW_NAMES: "reusable_docker_pipeline.yml,reusable_docker_pipeline.yml"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
