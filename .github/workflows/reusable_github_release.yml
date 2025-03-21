@@ -76,7 +76,7 @@ jobs:
           
           | 🐳 Docker Image | 📖 Description |
           |---------------|----------------|
-          | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ env.VERSION }}\` | Official release image |
+          | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ inputs.tag }}\` | Official release image |
           EOF
 
       - name: Append Dependencies (if enabled)
