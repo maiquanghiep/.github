@@ -29,6 +29,16 @@ on:
         description: 'Docker image repository'
         required: false
         type: string
+      dependencies_enabled:
+        description: 'Include dependencies section'
+        required: false
+        type: boolean
+        default: false
+      dependencies:
+        description: 'List of dependencies'
+        required: false
+        type: string
+        default: 'Depends on [Babylon v1.0.0-rc.6-fix](https://github.com/babylonlabs-io/babylon/releases/tag/v1.0.0-rc.6-fix)'
 
 jobs:
   release:
@@ -67,6 +77,8 @@ jobs:
           | 🐳 Docker Image | 📖 Description |
           |---------------|----------------|
           | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ env.VERSION }}\` | Official release image |
+          
+          ${{ inputs.dependencies_enabled == 'true' && format("# 📦 Dependencies\n\n{0}", inputs.dependencies) || '' }}
           EOF
 
       - name: Create GitHub release
