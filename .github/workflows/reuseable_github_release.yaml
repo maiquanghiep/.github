@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'Release description'
+        required: true
+        type: string
+      changelog:
+        description: 'Path to changelog file'
+        required: true
+        type: string
+      build_from_source:
+        description: 'Build from source'
+        required: false
+        type: boolean
+        default: false
+      build_command:
+        description: 'Command to build from source'
+        required: false
+        type: string
+      run_docker:
+        description: 'Run Docker'
+        required: false
+        type: boolean
+        default: false
+      docker_image_repo:
+        description: 'Docker image repository'
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version tag
+        id: version
+        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      - name: Generate release notes
+        run: |
+          tee release_notes.md <<EOF
+          # 🚀 Overview
+          
+          ${{ inputs.description }}
+          
+          # 📜 Changelog
+          You can read the whole changelog here: ${{ inputs.changelog }}
+          
+          # 🏗️ Binaries
+          If you prefer to build from source, use the following commands:
+          
+          \`\`\`sh
+          git pull
+          git checkout ${{ env.VERSION }}
+          ${{ inputs.build_command }}
+          \`\`\`
+          
+          Alternatively, prebuilt Docker images are available for this release:
+          
+          | 🐳 Docker Image | 📖 Description |
+          |---------------|----------------|
+          | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ env.VERSION }}\` | Official release image |
+          EOF
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
