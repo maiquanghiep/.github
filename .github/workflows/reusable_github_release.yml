@@ -33,8 +33,13 @@ on:
         required: false
         type: boolean
         default: false
-      docker_image_repo:
-        description: 'Docker image repository'
+      docker_image_template:
+        description: 'Full Docker image reference'
+        required: false
+        type: string
+        default: ''
+      docker_image_table_template:
+        description: 'Template for the Docker image section'
         required: false
         type: string
       dependencies_enabled:
@@ -57,7 +62,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate release notes
+      - name: Generate base release notes
         run: |
           tee release_notes.md <<EOF
           # 🚀 Overview
@@ -66,27 +71,48 @@ jobs:
           
           # 📜 Changelog
           You can read the whole changelog [here](${{ inputs.changelog_path }})
-          
+          EOF
+
+      - name: Append Build from Source section (if enabled)
+        if: inputs.build_from_source
+        run: |
+          tee -a release_notes.md <<EOF
+
           # 🏗️ Binaries
+
           If you prefer to build from source, use the following commands:
-          
+
           \`\`\`sh
           git pull
           git checkout ${{ inputs.tag }}
           ${{ inputs.build_command }}
           \`\`\`
-          
-          Alternatively, prebuilt Docker images are available for this release:
-          
-          | 🐳 Docker Image | 📖 Description |
-          |---------------|----------------|
-          | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ inputs.tag }}\` | Official release image |
           EOF
+
+      - name: Append Docker Image section (if provided)
+        run: |
+          if [[ -z "${{ inputs.docker_image_table_template }}" ]]; then
+            tee -a release_notes.md <<EOF
+
+            # 🐳 Docker Image
+
+            | Image | Description |
+            |---------------|----------------|
+            | \`${{ inputs.docker_image_template }}\` | Official release image |
+            EOF
+          else
+            tee -a release_notes.md <<< "${{ inputs.docker_image_table_template }}"
+          fi
 
       - name: Append Dependencies (if enabled)
         if: inputs.dependencies_enabled
         run: |
-          echo -e "\n# 📦 Dependencies\n\n${{ inputs.dependencies }}" >> release_notes.md
+          tee -a release_notes.md <<EOF
+
+          # 📦 Dependencies
+
+          ${{ inputs.dependencies }}
+          EOF
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
