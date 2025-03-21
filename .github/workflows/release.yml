@@ -23,5 +23,4 @@ jobs:
       docker_image_repo: "your-docker-repo"
       dependencies_enabled: true
       dependencies: "This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})"
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    secrets: inherit
