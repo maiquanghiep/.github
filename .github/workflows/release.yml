@@ -35,12 +35,10 @@ jobs:
       dependencies: "This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})"
       prerelease: ${{ inputs.prerelease }}
       docker_image_table_template: |
-            EOF
-            # 🐳 Docker Image
-
-            | Image | Description |
-            |---------------|----------------|
-            | babylonlabs/babylond:${{ inputs.tag }} | Official release image for mainnet |
-            | babylonlabs/babylond:${{ inputs.tag }}-testnet | Official release image for testnet |
-            EOF
+        # 🐳 Custom Docker Image
+    
+        | Image | Description |
+        |-----------------|----------------|
+        | babylonlabs/babylond:v0.3.0 | Mainnet image |
+        | babylonlabs/babylond:v0.3.0-testnet | Testnet image |
     secrets: inherit
