@@ -7,7 +7,7 @@ on:
         description: 'Release description'
         required: true
         type: string
-      changelog:
+      changelog_path:
         description: 'Path to changelog file'
         required: true
         type: string
