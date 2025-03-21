@@ -3,6 +3,10 @@ name: Call Reusable Release Workflow
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        type: string
       description:
         description: 'Release description'
         required: true
