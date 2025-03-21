@@ -65,7 +65,7 @@ jobs:
           ${{ inputs.description }}
           
           # 📜 Changelog
-          You can read the whole changelog here: ${{ inputs.changelog_path }}
+          You can read the whole changelog [here](${{ inputs.changelog_path }})
           
           # 🏗️ Binaries
           If you prefer to build from source, use the following commands:
