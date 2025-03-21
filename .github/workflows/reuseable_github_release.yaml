@@ -77,9 +77,12 @@ jobs:
           | 🐳 Docker Image | 📖 Description |
           |---------------|----------------|
           | \`babylonlabs/${{ inputs.docker_image_repo }}:${{ env.VERSION }}\` | Official release image |
-          
-          ${{ inputs.dependencies_enabled == 'true' && format("# 📦 Dependencies\n\n{0}", inputs.dependencies) || '' }}
           EOF
+
+      - name: Append Dependencies (if enabled)
+        if: inputs.dependencies_enabled == 'true'
+        run: |
+          echo -e "\n# 📦 Dependencies\n\n${{ inputs.dependencies }}" >> release_notes.md
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
