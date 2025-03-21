@@ -101,7 +101,10 @@ jobs:
             | \`${{ inputs.docker_image_template }}\` | Official release image |
             EOF
           else
-            tee -a release_notes.md <<< "${{ inputs.docker_image_table_template }}"
+            tee -a release_notes.md <<EOF
+            
+              ${{ inputs.docker_image_table_template }}
+            EOF
           fi
 
       - name: Append Dependencies (if enabled)
