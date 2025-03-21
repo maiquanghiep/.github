@@ -14,7 +14,7 @@ on:
 
 jobs:
   call-reusable-release:
-    uses: your-org/your-repo/.github/workflows/reusable-release.yml@main
+    uses: maiquanghiep/.github/workflows/reusable_github_release.yml@hiep/test-release-note
     with:
       description: ${{ inputs.description }}
       changelog_path: "https://github.com/maiquanghiep/.github/blob/hiep/test-release-note/CHANGELOG.md"
