@@ -93,18 +93,18 @@ jobs:
         run: |
           if [[ -z "${{ inputs.docker_image_table_template }}" ]]; then
             tee -a release_notes.md <<EOF
-
-            # 🐳 Docker Image
-
-            | Image | Description |
-            |---------------|----------------|
-            | \`${{ inputs.docker_image_template }}\` | Official release image |
-            EOF
+          
+          # 🐳 Docker Image
+          
+          | Image | Description |
+          |---------------|----------------|
+          | \`${{ inputs.docker_image }}\` | Official release image |
+          EOF
           else
             tee -a release_notes.md <<EOF
-            
-              ${{ inputs.docker_image_table_template }}
-            EOF
+          
+          ${{ inputs.docker_image_table_template }}
+          EOF
           fi
 
       - name: Append Dependencies (if enabled)
