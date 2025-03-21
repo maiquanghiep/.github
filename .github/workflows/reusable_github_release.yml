@@ -3,6 +3,10 @@ name: Reusable Release Workflow
 on:
   workflow_call:
     inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+        type: string
       description:
         description: 'Release description'
         required: true
@@ -49,10 +53,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read version tag
-        id: version
-        run: echo "VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-
       - name: Generate release notes
         run: |
           tee release_notes.md <<EOF
@@ -61,14 +61,14 @@ jobs:
           ${{ inputs.description }}
           
           # 📜 Changelog
-          You can read the whole changelog here: ${{ inputs.changelog }}
+          You can read the whole changelog here: ${{ inputs.changelog_path }}
           
           # 🏗️ Binaries
           If you prefer to build from source, use the following commands:
           
           \`\`\`sh
           git pull
-          git checkout ${{ env.VERSION }}
+          git checkout ${{ inputs.tag }}
           ${{ inputs.build_command }}
           \`\`\`
           
@@ -87,8 +87,8 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          name: Release ${{ env.VERSION }}
+          tag_name: ${{ inputs.tag }}
+          name: ${{ inputs.tag }}
           body_path: release_notes.md
           draft: false
           prerelease: false
