@@ -15,6 +15,11 @@ on:
         description: 'Compatible Babylon version tag'
         required: true
         type: string
+      prerelease:
+        description: 'Whether prerelease is enabled'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   call-reusable-release:
@@ -24,8 +29,10 @@ jobs:
       description: ${{ inputs.description }}
       changelog_path: "https://github.com/maiquanghiep/.github/blob/hiep/test-release-note/CHANGELOG.md"
       build_from_source: true
+      build_command: "make build # BABYLON_BUILD_OPTIONS=\"testnet\" make build"
       run_docker: true
-      docker_image_repo: "your-docker-repo"
+      docker_image_repo: "babylonlabs"
       dependencies_enabled: true
       dependencies: "This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})"
+      prerelease: ${{ inputs.prerelease }}
     secrets: inherit
