@@ -11,6 +11,10 @@ on:
         description: 'Release description'
         required: true
         type: string
+      prerelease:
+        description: 'Whether prerelease is enabled'
+        required: true
+        type: boolean
       changelog_path:
         description: 'Path to changelog file'
         required: true
@@ -91,6 +95,6 @@ jobs:
           name: ${{ inputs.tag }}
           body_path: release_notes.md
           draft: false
-          prerelease: false
+          prerelease: ${{ inputs.prerelease }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
