@@ -1,0 +1,27 @@
+name: Call Reusable Release Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'Release description'
+        required: true
+        type: string
+      babylon_version:
+        description: 'Compatible Babylon version tag'
+        required: true
+        type: string
+
+jobs:
+  call-reusable-release:
+    uses: your-org/your-repo/.github/workflows/reusable-release.yml@main
+    with:
+      description: ${{ inputs.description }}
+      changelog_path: "https://github.com/maiquanghiep/.github/blob/hiep/test-release-note/CHANGELOG.md"
+      build_from_source: true
+      run_docker: true
+      docker_image_repo: "your-docker-repo"
+      dependencies_enabled: true
+      dependencies: "This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})"
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
