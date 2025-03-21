@@ -1,7 +1,7 @@
-name: Release
+name: Reusable Release Workflow
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       description:
         description: 'Release description'
@@ -80,7 +80,7 @@ jobs:
           EOF
 
       - name: Append Dependencies (if enabled)
-        if: inputs.dependencies_enabled == 'true'
+        if: inputs.dependencies_enabled
         run: |
           echo -e "\n# 📦 Dependencies\n\n${{ inputs.dependencies }}" >> release_notes.md
 
