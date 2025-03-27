@@ -68,9 +68,16 @@ jobs:
           # 🚀 Overview
           
           ${{ inputs.description }}
-          
-          # 📜 Changelog
-          You can read the whole changelog [here](${{ inputs.changelog_path }})
+          EOF
+
+      - name: Append Dependencies (if enabled)
+        if: inputs.dependencies_enabled
+        run: |
+          tee -a release_notes.md <<EOF
+
+          # 📦 Dependencies
+
+          ${{ inputs.dependencies }}
           EOF
 
       - name: Append Build from Source section (if enabled)
@@ -107,15 +114,10 @@ jobs:
           EOF
           fi
 
-      - name: Append Dependencies (if enabled)
-        if: inputs.dependencies_enabled
+      - name: Append Changelog
         run: |
-          tee -a release_notes.md <<EOF
-
-          # 📦 Dependencies
-
-          ${{ inputs.dependencies }}
-          EOF
+          # 📜 Changelog
+          You can read the whole changelog [here](${{ inputs.changelog_path }})
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -125,5 +127,6 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
