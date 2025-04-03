@@ -23,7 +23,7 @@ on:
 
 jobs:
   call-reusable-release:
-    uses: babylonlabs.io/.github/.github/workflows/reusable_github_release.yml@hiep/add-release-workflow
+    uses: babylonlabs-io/.github/.github/workflows/reusable_github_release.yml@hiep/add-release-workflow
     with:
       tag: ${{ inputs.tag }}
       description: ${{ inputs.description }}
