@@ -36,7 +36,7 @@ jobs:
         # Only use the below command for testnet
         BABYLON_BUILD_OPTIONS="testnet" make build
       include_docker_image_section: true
-      dependencies_enabled: true
+      include_dependencies_section: true
       dependencies: |
         - This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
         - This release is compatible with [Vigilante ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
