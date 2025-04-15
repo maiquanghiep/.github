@@ -29,13 +29,13 @@ jobs:
       description: ${{ inputs.description }}
       auto_generated_changelog: true
       changelog_path: "https://github.com/maiquanghiep/.github/blob/hiep/test-release-note/CHANGELOG.md"
-      build_from_source: true
+      include_build_from_source_section: true
       build_command: |
         # Only use the below command for mainnet
         make build
         # Only use the below command for testnet
         BABYLON_BUILD_OPTIONS="testnet" make build
-      support_docker_image: true
+      include_docker_image_section: true
       dependencies_enabled: true
       dependencies: |
         - This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
