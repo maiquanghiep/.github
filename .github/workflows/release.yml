@@ -38,8 +38,8 @@ jobs:
       support_docker_image: true
       dependencies_enabled: true
       dependencies: |
-        This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
-        This release is compatible with [Vigilante ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
+        - This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
+        - This release is compatible with [Vigilante ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
       prerelease: ${{ inputs.prerelease }}
       docker_image_table_template: |
         | Image | Description |
