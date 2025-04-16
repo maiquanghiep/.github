@@ -34,11 +34,12 @@ jobs:
         make build
         # Only use the below command for testnet
         BABYLON_BUILD_OPTIONS="testnet" make build
-      docker_image_table_template: |
-        | Image | Description |
-        |-----------------|----------------|
-        | babylonlabs/babylond:${{ inputs.tag }} | Mainnet image |
-        | babylonlabs/babylond:${{ inputs.tag }}-testnet | Testnet image |
+      docker_image_name: babylonlabs/babylond:${{ inputs.tag }}
+      # docker_image_table_template: |
+      #   | Image | Description |
+      #   |-----------------|----------------|
+      #   | babylonlabs/babylond:${{ inputs.tag }} | Mainnet image |
+      #   | babylonlabs/babylond:${{ inputs.tag }}-testnet | Testnet image |
       dependencies_template: |
         - This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
         - This release is compatible with [Vigilante ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
