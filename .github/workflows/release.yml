@@ -28,21 +28,17 @@ jobs:
       tag: ${{ inputs.tag }}
       description: ${{ inputs.description }}
       prerelease: ${{ inputs.prerelease }}
-      include_changelog_section: true
       changelog_path: "https://github.com/maiquanghiep/.github/blob/hiep/test-release-note/CHANGELOG.md"
-      include_build_from_source_section: true
       build_command: |
         # Only use the below command for mainnet
         make build
         # Only use the below command for testnet
         BABYLON_BUILD_OPTIONS="testnet" make build
-      include_docker_image_section: true
       docker_image_table_template: |
         | Image | Description |
         |-----------------|----------------|
         | babylonlabs/babylond:v0.3.0 | Mainnet image |
         | babylonlabs/babylond:v0.3.0-testnet | Testnet image |
-      include_dependencies_section: true
       dependencies_template: |
         - This release is compatible with [Babylon ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
         - This release is compatible with [Vigilante ${{ inputs.babylon_version }}](https://github.com/babylonlabs-io/babylon/releases/tag/${{ inputs.babylon_version }})
